@@ -5,7 +5,9 @@
 </template>
 
 <script>
-import { ProjectName } from '../../dist/project-name.umd'
+import { SrtEngine } from '../../dist/srt-engine.umd'
+import lldq from './assets/lldq.srt'
+import logo from './assets/logo.png'
 
 export default {
   name: 'App',
@@ -15,13 +17,29 @@ export default {
 
   data () {
     return {
-      msg: 'loading...'
+      msg: 'loading'
     }
   },
 
   mounted () {
-    let pro = new ProjectName();
-    this.msg = pro.msg;
+    let se = new SrtEngine();
+    se.load('/static/subs/lldq.srt').then((se) => {
+      // this.msg = se.findByUid(1);
+      se.updateDialogueByUid(1, {
+        startTimeInMilliSeconds: 1000,
+      });
+      // this.msg = se.findByUid(1);
+      // this.msg = se.findByTime(1000);
+      // this.msg = se.findByText('爸爸');
+      // this.msg = se.findByText('爸爸');
+      this.msg = se.stringify({
+        align: 5,
+        fontColor: 'red',
+        fontSize: 16,
+      })
+      // se.removeDialogueByUid();
+      // se.addDialogue();
+    });
   },
 
   methods: {

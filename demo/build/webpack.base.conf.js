@@ -46,7 +46,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
-          name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          name: utils.assetsPath('img/[name].[ext]')
         }
       },
       {
@@ -63,6 +63,14 @@ module.exports = {
         options: {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+        }
+      },
+      {
+        test: /\.(srt)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 1,
+          name: utils.assetsPath('subs/[name].[ext]')
         }
       }
     ]

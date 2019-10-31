@@ -44,12 +44,9 @@
   ],
   "author": "lego-web@qiyi.com",
   "license": "MIT",
-<<<<<<< HEAD
   "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "query-string": "^6.8.3"
   }
-=======
-  "dependencies": {}
->>>>>>> f49d30c5ab91ff206852b99d189db8f65f5e6cc6
 }

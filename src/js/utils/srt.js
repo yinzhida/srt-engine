@@ -2,15 +2,15 @@
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-10-30 21:35:43
+ * Last Modified: 2019-10-31 16:16:53
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
  */
 
-import { fetchBlob } from '@/dao/dao';
+import { fetchBlob } from '@/js/dao/dao';
 import DataCache from './data-cache';
-import newGUID from 'guid';
+import newGUID from './guid';
 
 const getMilliSecondsFromString = (timeStr) => {
   // 时间格式转换
@@ -75,7 +75,7 @@ const getTextArrayFromText = (text) => {
         // 当然这个字幕到底是有一行字幕还是有两行或者三行字幕都不好说，所以做一下循环，看看到底有几行
         // if line i+2 have words, then it must be the subtitle contentline. and we should find it's next line, util we get a '', another case is there is'nt content line.
         while (lineArray[i + contentLineNumber].trim() !== '') {
-          data.texts.push(lineArray[i + contentLineNumber]);
+          data.texts.push(getPureText(lineArray[i + contentLineNumber]));
           contentLineNumber++;
           if ((i + contentLineNumber) >= lineArray.length) {
             data.texts.push('');
@@ -109,9 +109,10 @@ const getTextArrayFromText = (text) => {
         dataArray.push(data);
       }
     }
-    return dataArray.sort((a, b) => {
-      return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
-    });
+
+    dataArray.originText = text;
+
+    return dataArray;
   } catch (e) {
     console.error('getTextArrayFromText', '解析文件出错，文件格式可能不正确。', e.toString());
     return [];
@@ -134,7 +135,6 @@ const getSubtitleTextArrayByUrl = async (url) => {
         let textArray = getTextArrayFromText(text);
         let cacheUtil = DataCache.getInstanceByname('subtitleText', 2);
         cacheUtil.add(url, textArray);
-        console.log('returnTextArray', textArray);
         resolve(textArray);
       };
       reader.readAsText(blob, 'UTF-8');

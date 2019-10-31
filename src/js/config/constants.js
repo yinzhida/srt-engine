@@ -1,5 +1,7 @@
 
 
 export default {
-  CONSTTANT: 'constant'
+  WILL_BUILD_INDEX_COUNT: 60,
+  UID_INDEX_GROUP_SIZE: 50,
+  ITME_INDEX_GROUP_DURATION: 1000 * 60 * 10, // 10分钟
 };

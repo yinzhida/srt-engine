@@ -2,12 +2,12 @@
  * Created Date: 2018-03-17 11:17:37
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-10-30 20:34:15
+ * Last Modified: 2019-10-31 16:15:23
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
  */
-import getLogger from '@/utils/logger';
+import getLogger from '@/js/utils/logger';
 
 const instances = new Map();
 class DataCache {
