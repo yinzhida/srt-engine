@@ -2,7 +2,7 @@
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-10-31 16:16:53
+ * Last Modified: 2019-10-31 18:34:43
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
@@ -35,6 +35,7 @@ const getTextArrayFromText = (text) => {
     // 一条字幕的开始点
     let marker = 0;
     let dataArray = [];
+    dataArray.originText = text;
     for (let i = 0; i < lineArray.length; i++) {
       // here is a start point of data
       if (i === marker) {
@@ -109,9 +110,6 @@ const getTextArrayFromText = (text) => {
         dataArray.push(data);
       }
     }
-
-    dataArray.originText = text;
-
     return dataArray;
   } catch (e) {
     console.error('getTextArrayFromText', '解析文件出错，文件格式可能不正确。', e.toString());

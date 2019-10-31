@@ -1531,6 +1531,7 @@ var SrtEngine = function () {
     this.shouldBuildIndex = typeof shouldBuildIndex === 'boolean' ? shouldBuildIndex : true;
     this.timeIndexGroup = null;
     this.uidIndexGroup = null;
+    this.modified = false;
   }
 
   __WEBPACK_IMPORTED_MODULE_4_babel_runtime_helpers_createClass___default()(SrtEngine, [{
@@ -1580,6 +1581,10 @@ var SrtEngine = function () {
   }, {
     key: 'stringify',
     value: function stringify(styles) {
+      if (this.modified === false) {
+        return this.content.originText;
+      }
+
       var result = '';
       var content = this.getContent();
       var len = content.length;
@@ -1828,6 +1833,7 @@ var SrtEngine = function () {
           texts = _ref2.texts,
           index = _ref2.index;
 
+      this.modified = true;
       var data = {
         uid: Object(__WEBPACK_IMPORTED_MODULE_7__js_utils_guid__["a" /* default */])(),
         id: null,
@@ -1848,6 +1854,7 @@ var SrtEngine = function () {
   }, {
     key: 'updateDialogueByUid',
     value: function updateDialogueByUid(uid, info) {
+      this.modified = true;
       var data = this.findByUid(uid);
       var originData = __WEBPACK_IMPORTED_MODULE_9_lodash_clonedeep___default()(data);
       var needUpdateTimeIndex = false;
@@ -1874,12 +1881,14 @@ var SrtEngine = function () {
   }, {
     key: 'removeDialogueByUid',
     value: function removeDialogueByUid(uid) {
+      this.modified = true;
       var data = this.findByUid(uid);
       data.deleted = true;
     }
   }, {
     key: 'sort',
     value: function sort() {
+      this.modified = true;
       this.content.sort(function (a, b) {
         return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
       });
@@ -1887,9 +1896,11 @@ var SrtEngine = function () {
   }, {
     key: 'getContent',
     value: function getContent() {
-      return __WEBPACK_IMPORTED_MODULE_9_lodash_clonedeep___default()(this.content.filter(function (item) {
+      var result = __WEBPACK_IMPORTED_MODULE_9_lodash_clonedeep___default()(this.content.filter(function (item) {
         return !item.deleted;
       }));
+      result.originText = this.content.originText;
+      return result;
     }
   }]);
 
@@ -3980,7 +3991,7 @@ var _this = this;
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-10-31 16:16:53
+ * Last Modified: 2019-10-31 18:34:43
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
@@ -4013,6 +4024,7 @@ var getTextArrayFromText = function getTextArrayFromText(text) {
     // 一条字幕的开始点
     var marker = 0;
     var dataArray = [];
+    dataArray.originText = text;
     for (var i = 0; i < lineArray.length; i++) {
       // here is a start point of data
       if (i === marker) {
@@ -4088,9 +4100,6 @@ var getTextArrayFromText = function getTextArrayFromText(text) {
         dataArray.push(data);
       }
     }
-
-    dataArray.originText = text;
-
     return dataArray;
   } catch (e) {
     console.error('getTextArrayFromText', '解析文件出错，文件格式可能不正确。', e.toString());

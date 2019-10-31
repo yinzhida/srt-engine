@@ -1,9 +1,11 @@
 <template>
   <div id="app">
+    输入：
     <input
       type="text"
       v-model="searchText"
     >
+    &nbsp;&nbsp;
     <input
       type="button"
       @click="findByTime"
@@ -44,10 +46,16 @@
       @click="sort"
       value="sort"
     >
-    <br>
+    <br><br>
     <div style="background: #333; color: white;">result: {{result}}</div>
     <br>
-    msg: {{msg}}
+    srt-content: <textarea
+      name=""
+      id=""
+      cols="500"
+      rows="100"
+      :value="msg"
+    ></textarea>
   </div>
 </template>
 
@@ -97,11 +105,7 @@ export default {
   methods: {
     load () {
       this.se.load('/static/subs/lldq.srt').then((se) => {
-        this.msg = se.stringify({
-          align: 5,
-          fontColor: 'red',
-          fontSize: 16,
-        });
+        this.msg = se.getContent().originText;
       });
     },
 

@@ -13,6 +13,7 @@ class SrtEngine {
     this.shouldBuildIndex = typeof shouldBuildIndex === 'boolean' ? shouldBuildIndex : true;
     this.timeIndexGroup = null;
     this.uidIndexGroup = null;
+    this.modified = false;
   }
 
   async load (url) {
@@ -34,6 +35,10 @@ class SrtEngine {
   }
 
   stringify (styles) {
+    if (this.modified === false) {
+      return this.content.originText;
+    }
+
     let result = '';
     let content = this.getContent();
     let len = content.length;
@@ -235,6 +240,7 @@ class SrtEngine {
   }
 
   addDialogue ({ startTimeInMilliSeconds, endTimeInMilliSeconds, texts, index }) {
+    this.modified = true;
     let data = {
       uid: newGUID(),
       id: null,
@@ -254,6 +260,7 @@ class SrtEngine {
   }
 
   updateDialogueByUid (uid, info) {
+    this.modified = true;
     let data = this.findByUid(uid);
     const originData = cloneDeep(data);
     let needUpdateTimeIndex = false;
@@ -279,18 +286,22 @@ class SrtEngine {
   }
 
   removeDialogueByUid (uid) {
+    this.modified = true;
     let data = this.findByUid(uid);
     data.deleted = true;
   }
 
   sort () {
+    this.modified = true;
     this.content.sort((a, b) => {
       return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
     });
   }
 
   getContent () {
-    return cloneDeep(this.content.filter(item => !item.deleted));
+    let result = cloneDeep(this.content.filter(item => !item.deleted));
+    result.originText = this.content.originText;
+    return result;
   }
 }
 
