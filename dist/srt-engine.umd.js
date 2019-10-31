@@ -1581,9 +1581,10 @@ var SrtEngine = function () {
     key: 'stringify',
     value: function stringify(styles) {
       var result = '';
-      var len = this.content.length;
+      var content = this.getContent();
+      var len = content.length;
       for (var i = 0; i < len; i++) {
-        var data = this.content[i];
+        var data = content[i];
         var id = i + 1;
         result += id + '\n';
         result += Object(__WEBPACK_IMPORTED_MODULE_6__js_utils_time__["a" /* formatTime */])(data.startTimeInMilliSeconds / 1000, 'hh:mm:ss,S');
@@ -1745,11 +1746,14 @@ var SrtEngine = function () {
   }, {
     key: 'findByTime',
     value: function findByTime(milliSecondtime) {
+      var result = [];
       if (this.timeIndexGroup) {
         // 通过索引查询
         var levelKey = this.getTimeLevelKey(milliSecondtime);
-        return this.timeIndexGroup[levelKey].find(function (item) {
-          return item.startTimeInMilliSeconds <= milliSecondtime && item.endTimeInMilliSeconds > milliSecondtime && !item.deleted;
+        this.timeIndexGroup[levelKey].forEach(function (item) {
+          if (item.startTimeInMilliSeconds <= milliSecondtime && item.endTimeInMilliSeconds > milliSecondtime && !item.deleted) {
+            result.push(item);
+          }
         });
       } else {
         // 直接轮询查询
@@ -1757,10 +1761,11 @@ var SrtEngine = function () {
         for (var i = 0; i < len; i++) {
           var data = this.content[i];
           if (data.startTimeInMilliSeconds < milliSecondtime && data.endTimeInMilliSeconds > milliSecondtime && !data.deleted) {
-            return data;
+            result.push(data);
           }
         }
       }
+      return result;
     }
   }, {
     key: 'getTimeLevelKey',
@@ -1775,6 +1780,10 @@ var SrtEngine = function () {
   }, {
     key: 'findByText',
     value: function findByText(word) {
+      if (!word) {
+        return [];
+      }
+
       var searchResult = [];
       var len = this.content.length;
 
@@ -1790,7 +1799,11 @@ var SrtEngine = function () {
   }, {
     key: 'findByUid',
     value: function findByUid(uid) {
-      if (this.timeIndexGroup) {
+      if (typeof uid !== 'number') {
+        return null;
+      }
+
+      if (this.uidIndexGroup) {
         // 通过索引查询
         var levelKey = this.getUidLevelKey(uid);
         return this.uidIndexGroup[levelKey].find(function (item) {
@@ -1876,9 +1889,6 @@ var SrtEngine = function () {
     value: function getContent() {
       return __WEBPACK_IMPORTED_MODULE_9_lodash_clonedeep___default()(this.content.filter(function (item) {
         return !item.deleted;
-      }).map(function (item) {
-        item.texts.map(__WEBPACK_IMPORTED_MODULE_10__js_utils_srt__["a" /* getPureText */]);
-        return item;
       }));
     }
   }]);

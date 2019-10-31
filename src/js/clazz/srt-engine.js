@@ -35,9 +35,10 @@ class SrtEngine {
 
   stringify (styles) {
     let result = '';
-    let len = this.content.length;
+    let content = this.getContent();
+    let len = content.length;
     for (let i = 0; i < len; i++) {
-      let data = this.content[i];
+      let data = content[i];
       let id = i + 1;
       result += id + '\n';
       result += formatTime((data.startTimeInMilliSeconds / 1000), 'hh:mm:ss,S');
@@ -162,12 +163,15 @@ class SrtEngine {
   }
 
   findByTime (milliSecondtime) {
+    let result = [];
     if (this.timeIndexGroup) { // 通过索引查询
       const levelKey = this.getTimeLevelKey(milliSecondtime);
-      return this.timeIndexGroup[levelKey].find((item) => {
-        return item.startTimeInMilliSeconds <= milliSecondtime &&
+      this.timeIndexGroup[levelKey].forEach((item) => {
+        if (item.startTimeInMilliSeconds <= milliSecondtime &&
           item.endTimeInMilliSeconds > milliSecondtime &&
-          !item.deleted;
+          !item.deleted) {
+          result.push(item);
+        }
       });
     } else { // 直接轮询查询
       let len = this.content.length;
@@ -176,10 +180,11 @@ class SrtEngine {
         if (data.startTimeInMilliSeconds < milliSecondtime &&
           data.endTimeInMilliSeconds > milliSecondtime &&
           !data.deleted) {
-          return data;
+          result.push(data);
         }
       }
     }
+    return result;
   }
 
   getTimeLevelKey (milliSecondtime) {
@@ -191,6 +196,10 @@ class SrtEngine {
   }
 
   findByText (word) {
+    if (!word) {
+      return [];
+    }
+
     let searchResult = [];
     let len = this.content.length;
 
@@ -205,7 +214,11 @@ class SrtEngine {
   }
 
   findByUid (uid) {
-    if (this.timeIndexGroup) { // 通过索引查询
+    if (typeof uid !== 'number') {
+      return null;
+    }
+
+    if (this.uidIndexGroup) { // 通过索引查询
       let levelKey = this.getUidLevelKey(uid);
       return this.uidIndexGroup[levelKey].find((item) => {
         return item.uid === uid && !item.deleted;
@@ -277,10 +290,7 @@ class SrtEngine {
   }
 
   getContent () {
-    return cloneDeep(this.content.filter(item => !item.deleted).map((item) => {
-      item.texts.map(getPureText);
-      return item;
-    }));
+    return cloneDeep(this.content.filter(item => !item.deleted));
   }
 }
 
