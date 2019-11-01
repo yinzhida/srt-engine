@@ -14,11 +14,13 @@ class SrtEngine {
     this.timeIndexGroup = null;
     this.uidIndexGroup = null;
     this.modified = false;
+    this.originText = null;
   }
 
   async load (url) {
     this.url = url;
     this.content = await getSubtitleTextArrayByUrl(url);
+    this.originText = this.content.originText;
     if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
       this.buildIndex();
     }
@@ -28,6 +30,7 @@ class SrtEngine {
   compile (text) {
     this.url = '';
     this.content = getTextArrayFromText(text);
+    this.originText = this.content.originText;
     if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
       this.buildIndex();
     }
@@ -35,8 +38,8 @@ class SrtEngine {
   }
 
   stringify (styles) {
-    if (this.modified === false) {
-      return this.content.originText;
+    if (this.modified === false && styles === undefined) {
+      return this.originText;
     }
 
     let result = '';
@@ -300,8 +303,11 @@ class SrtEngine {
 
   getContent () {
     let result = cloneDeep(this.content.filter(item => !item.deleted));
-    result.originText = this.content.originText;
     return result;
+  }
+
+  getOriginText () {
+    return this.originText;
   }
 }
 

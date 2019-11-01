@@ -105,7 +105,7 @@ export default {
   methods: {
     load () {
       this.se.load('/static/subs/lldq.srt').then((se) => {
-        this.msg = se.getContent().originText;
+        this.msg = se.getOriginText();
       });
     },
 
