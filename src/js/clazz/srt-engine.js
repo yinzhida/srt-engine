@@ -37,21 +37,42 @@ class SrtEngine {
     return this;
   }
 
-  stringify (styles) {
-    if (this.modified === false && styles === undefined) {
+  stringify (styles, start, end) {
+    start = Number(start);
+    end = Number(end);
+    let cutRange = false;
+    if (this.isUsableNumber(start) && this.isUsableNumber(end)) {
+      cutRange = true;
+    }
+
+    if (this.modified === false && styles === undefined && !cutRange) {
       return this.originText;
     }
+
 
     let result = '';
     let content = this.getContent();
     let len = content.length;
     for (let i = 0; i < len; i++) {
       let data = content[i];
+      let dialogueStart = data.startTimeInMilliSeconds;
+      let dialogueEnd = data.endTimeInMilliSeconds;
+
+      if (cutRange) {
+        if (data.endTimeInMilliSeconds <= start || data.startTimeInMilliSeconds >= end) {
+          continue;
+        }
+        dialogueStart = data.startTimeInMilliSeconds - start;
+        dialogueStart = dialogueStart < 0 ? 0 : dialogueStart;
+        dialogueEnd = data.endTimeInMilliSeconds - start;
+        dialogueEnd = dialogueEnd > (end - start) ? (end - start) : dialogueEnd;
+      }
+
       let id = i + 1;
       result += id + '\n';
-      result += formatTime((data.startTimeInMilliSeconds / 1000), 'hh:mm:ss,S');
+      result += formatTime((dialogueStart / 1000), 'hh:mm:ss,S');
       result += ' --> ';
-      result += formatTime((data.endTimeInMilliSeconds / 1000), 'hh:mm:ss,S');
+      result += formatTime((dialogueEnd / 1000), 'hh:mm:ss,S');
       result += '\n';
       result += this.getStyledTexts(data.texts, styles).join('\n') + '\n\n';
     }
@@ -176,7 +197,7 @@ class SrtEngine {
       const levelKey = this.getTimeLevelKey(milliSecondtime);
       this.timeIndexGroup[levelKey].forEach((item) => {
         if (item.startTimeInMilliSeconds <= milliSecondtime &&
-          item.endTimeInMilliSeconds > milliSecondtime &&
+          item.endTimeInMilliSeconds >= milliSecondtime &&
           !item.deleted) {
           result.push(item);
         }
@@ -185,8 +206,8 @@ class SrtEngine {
       let len = this.content.length;
       for (let i = 0; i < len; i++) {
         let data = this.content[i];
-        if (data.startTimeInMilliSeconds < milliSecondtime &&
-          data.endTimeInMilliSeconds > milliSecondtime &&
+        if (data.startTimeInMilliSeconds <= milliSecondtime &&
+          data.endTimeInMilliSeconds >= milliSecondtime &&
           !data.deleted) {
           result.push(data);
         }
@@ -222,7 +243,8 @@ class SrtEngine {
   }
 
   findByUid (uid) {
-    if (typeof uid !== 'number') {
+    uid = Number(uid);
+    if (!this.isUsableNumber(uid)) {
       return null;
     }
 
@@ -240,6 +262,40 @@ class SrtEngine {
         }
       }
     }
+  }
+
+  findByTimeRange (start, end) {
+    const duration = end - start;
+    if (duration < 0) {
+      return [];
+    }
+
+    let searchResult = [];
+    if (duration < constants.SEARCH_TEXT_USE_INDEX_MAX_RANGE &&
+      this.timeIndexGroup !== null) { // 使用索引
+      const levelKey = this.getTimeLevelKey(start);
+      const endLevelKey = this.getTimeLevelKey(end);
+      for (let key = levelKey; key <= endLevelKey; key++) {
+        for (let dialogue of this.timeIndexGroup[key]) {
+          if (!(dialogue.endTimeInMilliSeconds < start ||
+            dialogue.startTimeInMilliSeconds > end) && dialogue.deleted === false) {
+            searchResult.push(dialogue);
+          }
+        }
+      }
+    } else {
+      // 直接查找
+      let len = this.content.length;
+      for (let i = 0; i < len; i++) {
+        let data = this.content[i];
+        if (!(data.endTimeInMilliSeconds < start ||
+          data.startTimeInMilliSeconds > end)) {
+          searchResult.push(data);
+        }
+      }
+    }
+
+    return searchResult;
   }
 
   addDialogue ({ startTimeInMilliSeconds, endTimeInMilliSeconds, texts, index }) {
@@ -268,12 +324,12 @@ class SrtEngine {
     const originData = cloneDeep(data);
     let needUpdateTimeIndex = false;
 
-    if (typeof info.startTimeInMilliSeconds === 'number') {
+    if (this.isUsableNumber(info.startTimeInMilliSeconds)) {
       needUpdateTimeIndex = true;
       data.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
     }
 
-    if (typeof info.endTimeInMilliSeconds === 'number') {
+    if (this.isUsableNumber(info.endTimeInMilliSeconds)) {
       needUpdateTimeIndex = true;
       data.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
     }
@@ -283,8 +339,8 @@ class SrtEngine {
     }
 
     if (this.timeIndexGroup !== null && needUpdateTimeIndex) {
-      this._removeFromIndex(originData);
-      this._addToIndex(data);
+      this._removeFromTimeIndex(originData);
+      this._addToTimeIndex(data);
     }
   }
 
@@ -299,6 +355,12 @@ class SrtEngine {
     this.content.sort((a, b) => {
       return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
     });
+    for (let key in this.timeIndexGroup) {
+      const group = this.timeIndexGroup[key];
+      group.sort((a, b) => {
+        return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
+      });
+    }
   }
 
   getContent () {
@@ -308,6 +370,13 @@ class SrtEngine {
 
   getOriginText () {
     return this.originText;
+  }
+
+  isUsableNumber (value) {
+    if (value === undefined || value === null || isNaN(value)) {
+      return false;
+    }
+    return true;
   }
 }
 

@@ -1347,7 +1347,8 @@ var newGUID = function newGUID() {
 /* harmony default export */ __webpack_exports__["a"] = ({
   WILL_BUILD_INDEX_COUNT: 60,
   UID_INDEX_GROUP_SIZE: 50,
-  ITME_INDEX_GROUP_DURATION: 1000 * 60 * 10 // 10分钟
+  ITME_INDEX_GROUP_DURATION: 1000 * 60 * 10, // 10分钟
+  SEARCH_TEXT_USE_INDEX_MAX_RANGE: 50 * 3 * 1000 // 150秒
 });
 
 /***/ }),
@@ -1583,8 +1584,15 @@ var SrtEngine = function () {
     }
   }, {
     key: 'stringify',
-    value: function stringify(styles) {
-      if (this.modified === false && styles === undefined) {
+    value: function stringify(styles, start, end) {
+      start = Number(start);
+      end = Number(end);
+      var cutRange = false;
+      if (this.isUsableNumber(start) && this.isUsableNumber(end)) {
+        cutRange = true;
+      }
+
+      if (this.modified === false && styles === undefined && !cutRange) {
         return this.originText;
       }
 
@@ -1593,11 +1601,24 @@ var SrtEngine = function () {
       var len = content.length;
       for (var i = 0; i < len; i++) {
         var data = content[i];
+        var dialogueStart = data.startTimeInMilliSeconds;
+        var dialogueEnd = data.endTimeInMilliSeconds;
+
+        if (cutRange) {
+          if (data.endTimeInMilliSeconds <= start || data.startTimeInMilliSeconds >= end) {
+            continue;
+          }
+          dialogueStart = data.startTimeInMilliSeconds - start;
+          dialogueStart = dialogueStart < 0 ? 0 : dialogueStart;
+          dialogueEnd = data.endTimeInMilliSeconds - start;
+          dialogueEnd = dialogueEnd > end - start ? end - start : dialogueEnd;
+        }
+
         var id = i + 1;
         result += id + '\n';
-        result += Object(__WEBPACK_IMPORTED_MODULE_6__js_utils_time__["a" /* formatTime */])(data.startTimeInMilliSeconds / 1000, 'hh:mm:ss,S');
+        result += Object(__WEBPACK_IMPORTED_MODULE_6__js_utils_time__["a" /* formatTime */])(dialogueStart / 1000, 'hh:mm:ss,S');
         result += ' --> ';
-        result += Object(__WEBPACK_IMPORTED_MODULE_6__js_utils_time__["a" /* formatTime */])(data.endTimeInMilliSeconds / 1000, 'hh:mm:ss,S');
+        result += Object(__WEBPACK_IMPORTED_MODULE_6__js_utils_time__["a" /* formatTime */])(dialogueEnd / 1000, 'hh:mm:ss,S');
         result += '\n';
         result += this.getStyledTexts(data.texts, styles).join('\n') + '\n\n';
       }
@@ -1759,7 +1780,7 @@ var SrtEngine = function () {
         // 通过索引查询
         var levelKey = this.getTimeLevelKey(milliSecondtime);
         this.timeIndexGroup[levelKey].forEach(function (item) {
-          if (item.startTimeInMilliSeconds <= milliSecondtime && item.endTimeInMilliSeconds > milliSecondtime && !item.deleted) {
+          if (item.startTimeInMilliSeconds <= milliSecondtime && item.endTimeInMilliSeconds >= milliSecondtime && !item.deleted) {
             result.push(item);
           }
         });
@@ -1768,7 +1789,7 @@ var SrtEngine = function () {
         var len = this.content.length;
         for (var i = 0; i < len; i++) {
           var data = this.content[i];
-          if (data.startTimeInMilliSeconds < milliSecondtime && data.endTimeInMilliSeconds > milliSecondtime && !data.deleted) {
+          if (data.startTimeInMilliSeconds <= milliSecondtime && data.endTimeInMilliSeconds >= milliSecondtime && !data.deleted) {
             result.push(data);
           }
         }
@@ -1807,7 +1828,8 @@ var SrtEngine = function () {
   }, {
     key: 'findByUid',
     value: function findByUid(uid) {
-      if (typeof uid !== 'number') {
+      uid = Number(uid);
+      if (!this.isUsableNumber(uid)) {
         return null;
       }
 
@@ -1827,6 +1849,60 @@ var SrtEngine = function () {
           }
         }
       }
+    }
+  }, {
+    key: 'findByTimeRange',
+    value: function findByTimeRange(start, end) {
+      var duration = end - start;
+      if (duration < 0) {
+        return [];
+      }
+
+      var searchResult = [];
+      if (duration < __WEBPACK_IMPORTED_MODULE_8__js_config_constants__["a" /* default */].SEARCH_TEXT_USE_INDEX_MAX_RANGE && this.timeIndexGroup !== null) {
+        // 使用索引
+        var levelKey = this.getTimeLevelKey(start);
+        var endLevelKey = this.getTimeLevelKey(end);
+        for (var key = levelKey; key <= endLevelKey; key++) {
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator___default()(this.timeIndexGroup[key]), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var dialogue = _step2.value;
+
+              if (!(dialogue.endTimeInMilliSeconds < start || dialogue.startTimeInMilliSeconds > end) && dialogue.deleted === false) {
+                searchResult.push(dialogue);
+              }
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+        }
+      } else {
+        // 直接查找
+        var len = this.content.length;
+        for (var i = 0; i < len; i++) {
+          var data = this.content[i];
+          if (!(data.endTimeInMilliSeconds < start || data.startTimeInMilliSeconds > end)) {
+            searchResult.push(data);
+          }
+        }
+      }
+
+      return searchResult;
     }
   }, {
     key: 'addDialogue',
@@ -1862,12 +1938,12 @@ var SrtEngine = function () {
       var originData = __WEBPACK_IMPORTED_MODULE_9_lodash_clonedeep___default()(data);
       var needUpdateTimeIndex = false;
 
-      if (typeof info.startTimeInMilliSeconds === 'number') {
+      if (this.isUsableNumber(info.startTimeInMilliSeconds)) {
         needUpdateTimeIndex = true;
         data.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
       }
 
-      if (typeof info.endTimeInMilliSeconds === 'number') {
+      if (this.isUsableNumber(info.endTimeInMilliSeconds)) {
         needUpdateTimeIndex = true;
         data.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
       }
@@ -1877,8 +1953,8 @@ var SrtEngine = function () {
       }
 
       if (this.timeIndexGroup !== null && needUpdateTimeIndex) {
-        this._removeFromIndex(originData);
-        this._addToIndex(data);
+        this._removeFromTimeIndex(originData);
+        this._addToTimeIndex(data);
       }
     }
   }, {
@@ -1895,6 +1971,12 @@ var SrtEngine = function () {
       this.content.sort(function (a, b) {
         return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
       });
+      for (var key in this.timeIndexGroup) {
+        var group = this.timeIndexGroup[key];
+        group.sort(function (a, b) {
+          return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
+        });
+      }
     }
   }, {
     key: 'getContent',
@@ -1908,6 +1990,14 @@ var SrtEngine = function () {
     key: 'getOriginText',
     value: function getOriginText() {
       return this.originText;
+    }
+  }, {
+    key: 'isUsableNumber',
+    value: function isUsableNumber(value) {
+      if (value === undefined || value === null || isNaN(value)) {
+        return false;
+      }
+      return true;
     }
   }]);
 

@@ -1,11 +1,17 @@
 <template>
   <div id="app">
-    输入：
+    输入1：
     <input
       type="text"
-      v-model="searchText"
+      v-model="searchText1"
     >
     &nbsp;&nbsp;
+    输入2：
+    <input
+      type="text"
+      v-model="searchText2"
+    >
+    <br>
     <input
       type="button"
       @click="findByTime"
@@ -46,6 +52,18 @@
       @click="sort"
       value="sort"
     >
+
+    <input
+      type="button"
+      @click="findByTimeRange"
+      value="findByTimeRange"
+    >
+
+    <input
+      type="button"
+      @click="stringifyWidthTime"
+      value="stringifyWidthTime"
+    >
     <br><br>
     <div style="background: #333; color: white;">result: {{result}}</div>
     <br>
@@ -74,7 +92,8 @@ export default {
     return {
       msg: 'loading',
       result: '',
-      searchText: '',
+      searchText1: '',
+      searchText2: '',
     }
   },
 
@@ -110,15 +129,15 @@ export default {
     },
 
     findByTime () {
-      this.result = this.se.findByTime(parseInt(this.searchText));
+      this.result = this.se.findByTime(parseInt(this.searchText1));
     },
 
     findByText () {
-      this.result = this.se.findByText(this.searchText);
+      this.result = this.se.findByText(this.searchText1);
     },
 
     findByUid () {
-      this.result = this.se.findByUid(parseInt(this.searchText));
+      this.result = this.se.findByUid(parseInt(this.searchText1));
     },
 
     addDialogue () {
@@ -131,7 +150,7 @@ export default {
     },
 
     updateByUid () {
-      this.se.updateDialogueByUid(parseInt(this.searchText), {
+      this.se.updateDialogueByUid(parseInt(this.searchText1), {
         startTimeInMilliSeconds: 0,
         endTimeInMilliSeconds: 1000,
         texts: ['更新过的字幕~~~~'],
@@ -139,7 +158,7 @@ export default {
     },
 
     deleteByUid () {
-      this.se.removeDialogueByUid(parseInt(this.searchText));
+      this.se.removeDialogueByUid(parseInt(this.searchText1));
     },
 
     stringify () {
@@ -150,7 +169,19 @@ export default {
 
     sort () {
       this.se.sort();
-    }
+    },
+
+    findByTimeRange () {
+      this.result = this.se.findByTimeRange(this.searchText1, this.searchText2);
+    },
+
+    stringifyWidthTime () {
+      this.result = this.se.stringify({
+        fontColor: 'red',
+        fontSize: '32',
+      }, this.searchText1, this.searchText2);
+    },
+
   }
 }
 </script>
