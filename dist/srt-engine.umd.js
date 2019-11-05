@@ -1583,6 +1583,16 @@ var SrtEngine = function () {
       return this;
     }
   }, {
+    key: 'transform',
+    value: function transform(content) {
+      this.content = content;
+      this.originText = undefined;
+      if (this.shouldBuildIndex && this.content.length > __WEBPACK_IMPORTED_MODULE_8__js_config_constants__["a" /* default */].WILL_BUILD_INDEX_COUNT) {
+        this.buildIndex();
+      }
+      return this;
+    }
+  }, {
     key: 'stringify',
     value: function stringify(styles, start, end) {
       start = Number(start);
@@ -1590,10 +1600,6 @@ var SrtEngine = function () {
       var cutRange = false;
       if (this.isUsableNumber(start) && this.isUsableNumber(end)) {
         cutRange = true;
-      }
-
-      if (this.modified === false && styles === undefined && !cutRange) {
-        return this.originText;
       }
 
       var result = '';

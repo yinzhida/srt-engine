@@ -37,6 +37,15 @@ class SrtEngine {
     return this;
   }
 
+  transform (content) {
+    this.content = content;
+    this.originText = undefined;
+    if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
+      this.buildIndex();
+    }
+    return this;
+  }
+
   stringify (styles, start, end) {
     start = Number(start);
     end = Number(end);
@@ -44,11 +53,6 @@ class SrtEngine {
     if (this.isUsableNumber(start) && this.isUsableNumber(end)) {
       cutRange = true;
     }
-
-    if (this.modified === false && styles === undefined && !cutRange) {
-      return this.originText;
-    }
-
 
     let result = '';
     let content = this.getContent();
