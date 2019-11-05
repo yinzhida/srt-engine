@@ -807,17 +807,24 @@ var SrtEngine = function () {
       var startTimeInMilliSeconds = _ref2.startTimeInMilliSeconds,
           endTimeInMilliSeconds = _ref2.endTimeInMilliSeconds,
           texts = _ref2.texts,
-          index = _ref2.index;
+          index = _ref2.index,
+          id = _ref2.id;
 
       this.modified = true;
       var data = {
         uid: Object(__WEBPACK_IMPORTED_MODULE_7__js_utils_guid__["a" /* default */])(),
-        id: null,
+        id: id || null,
         startTimeInMilliSeconds: startTimeInMilliSeconds,
         endTimeInMilliSeconds: endTimeInMilliSeconds,
         texts: texts
       };
-      this.content.splice(index, 0, data);
+
+      if (index !== undefined) {
+        this.content.splice(index, 0, data);
+      } else {
+        this.content.push(data);
+      }
+
       if (this.shouldBuildIndex) {
         if (this.timeIndexGroup !== null && this.uidIndexGroup !== null) {
           this._addToIndex(data);

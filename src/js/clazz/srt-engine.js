@@ -302,16 +302,22 @@ class SrtEngine {
     return searchResult;
   }
 
-  addDialogue ({ startTimeInMilliSeconds, endTimeInMilliSeconds, texts, index }) {
+  addDialogue ({ startTimeInMilliSeconds, endTimeInMilliSeconds, texts, index, id }) {
     this.modified = true;
     let data = {
       uid: newGUID(),
-      id: null,
+      id: id || null,
       startTimeInMilliSeconds,
       endTimeInMilliSeconds,
       texts,
     };
-    this.content.splice(index, 0, data);
+
+    if (index !== undefined) {
+      this.content.splice(index, 0, data);
+    } else {
+      this.content.push(data);
+    }
+
     if (this.shouldBuildIndex) {
       if (this.timeIndexGroup !== null && this.uidIndexGroup !== null) {
         this._addToIndex(data);

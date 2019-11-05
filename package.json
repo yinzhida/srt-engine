@@ -1,6 +1,6 @@
 {
   "name": "srt-engine",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "srt-engine",
   "main": "dist/srt-engine.js",
   "scripts": {
