@@ -967,7 +967,7 @@ var _this = this;
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-10-31 18:34:43
+ * Last Modified: 2019-11-07 10:37:07
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
@@ -1042,7 +1042,7 @@ var getTextArrayFromText = function getTextArrayFromText(text) {
         // 当然这个字幕到底是有一行字幕还是有两行或者三行字幕都不好说，所以做一下循环，看看到底有几行
         // if line i+2 have words, then it must be the subtitle contentline. and we should find it's next line, util we get a '', another case is there is'nt content line.
         while (lineArray[i + contentLineNumber].trim() !== '') {
-          data.texts.push(getPureText(lineArray[i + contentLineNumber]));
+          data.texts.push(getPureText(lineArray[i + contentLineNumber]).trim());
           contentLineNumber++;
           if (i + contentLineNumber >= lineArray.length) {
             data.texts.push('');
