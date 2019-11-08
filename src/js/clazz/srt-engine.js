@@ -18,9 +18,11 @@ class SrtEngine {
   }
 
   async load (url) {
+    this.clearSrtEngine();
     this.url = url;
     this.content = await getSubtitleTextArrayByUrl(url);
     this.originText = this.content.originText;
+
     if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
       this.buildIndex();
     }
@@ -28,7 +30,7 @@ class SrtEngine {
   }
 
   compile (text) {
-    this.url = '';
+    this.clearSrtEngine();
     this.content = getTextArrayFromText(text);
     this.originText = this.content.originText;
     if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
@@ -38,12 +40,23 @@ class SrtEngine {
   }
 
   transform (content) {
-    this.content = content;
-    this.originText = undefined;
+    this.clearSrtEngine();
+    this.content = content.map((item) => {
+      item.uid = item.uid === undefined ? newGUID() : item.uid;
+      return item;
+    });
+    this.originText = null;
     if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
       this.buildIndex();
     }
     return this;
+  }
+
+  clearSrtEngine () {
+    this.url = '';
+    this.modified = false;
+    this.originText = null;
+    this.clearIndex();
   }
 
   stringify (styles, start, end) {
@@ -133,6 +146,11 @@ class SrtEngine {
     };
 
     return texts.map(serialize);
+  }
+
+  clearIndex () {
+    this.timeIndexGroup = null;
+    this.uidIndexGroup = null;
   }
 
   buildIndex () {
@@ -302,15 +320,12 @@ class SrtEngine {
     return searchResult;
   }
 
-  addDialogue ({ startTimeInMilliSeconds, endTimeInMilliSeconds, texts, index, id }) {
+  addDialogue (dialogue, index) {
     this.modified = true;
-    let data = {
-      uid: newGUID(),
-      id: id || null,
-      startTimeInMilliSeconds,
-      endTimeInMilliSeconds,
-      texts,
-    };
+    let uid = newGUID();
+    let data = Object.assign(cloneDeep(dialogue), {
+      uid: uid,
+    });
 
     if (index !== undefined) {
       this.content.splice(index, 0, data);
@@ -318,14 +333,15 @@ class SrtEngine {
       this.content.push(data);
     }
 
-    if (this.shouldBuildIndex) {
-      if (this.timeIndexGroup !== null && this.uidIndexGroup !== null) {
-        this._addToIndex(data);
-      } else {
+    if (this.timeIndexGroup !== null && this.uidIndexGroup !== null) {
+      this._addToIndex(data);
+    } else {
+      if (this.shouldBuildIndex && this.content.length > constants.WILL_BUILD_INDEX_COUNT) {
         this.buildIndex();
       }
     }
-    return this;
+
+    return cloneDeep(data);
   }
 
   updateDialogueByUid (uid, info) {
