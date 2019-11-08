@@ -1990,6 +1990,7 @@ var SrtEngine = function () {
         this._removeFromTimeIndex(originData);
         this._addToTimeIndex(data);
       }
+      return this;
     }
   }, {
     key: 'removeDialogueByUid',
@@ -1997,6 +1998,7 @@ var SrtEngine = function () {
       this.modified = true;
       var data = this.findByUid(uid);
       data.deleted = true;
+      return this;
     }
   }, {
     key: 'sort',
@@ -2011,6 +2013,7 @@ var SrtEngine = function () {
           return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
         });
       }
+      return this;
     }
   }, {
     key: 'getContent',

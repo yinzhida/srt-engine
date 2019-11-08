@@ -368,12 +368,14 @@ class SrtEngine {
       this._removeFromTimeIndex(originData);
       this._addToTimeIndex(data);
     }
+    return this;
   }
 
   removeDialogueByUid (uid) {
     this.modified = true;
     let data = this.findByUid(uid);
     data.deleted = true;
+    return this;
   }
 
   sort () {
@@ -387,6 +389,7 @@ class SrtEngine {
         return a.startTimeInMilliSeconds - b.startTimeInMilliSeconds;
       });
     }
+    return this;
   }
 
   getContent () {
