@@ -1,9 +1,14 @@
 # srt engine
-an srt editor engine
+srt editor engine, improve performance by indexing
+
+# install
+```bash
+npm i -S srt-engine
+```
 
 # usage
 ```js
-import StrEngine from '...';
+import StrEngine from 'srt-engine';
 let se = new SrtEngine();
 se.load('your srt file url');
 ```
@@ -39,43 +44,57 @@ dialogue object like this:
 # methods:
 ### load
 param: url
+
 return: promise --> SE instance
 ### compile
 param: file text
+
 return: SE instance
 ### transform
 param: content Array
+
 return: SE instance
 ### stringify
 param: styles Object(all dialogue support fontSize, font), start, end
+
 return: file text
 ### findByTime
 param: milliseconds Number
+
 return: dialogue Array
 ### findByText
 param: text
+
 return: dialogue Array
 ### findByUid
 param: uid (an attribute of dialogue object)
+
 return: an dialogue
 ### findByTimeRange
 param: start end
+
 return: dialogue Array
 ### addDialogue
 param: dialogue index(position)
+
 return: dialogue(cloneDeep)
 ### updateDialogueByUid
 param: uid, dialogueInfos(like dialogue, not strict)
+
 return: SE instance
 ### removeDialogueByUid
 param: uid
+
 return: SE instance
 ### sort
 param: none
+
 return: SE instance
 ### getContent
 param: none
+
 return: dialogue Array
 ### getOriginText
 param: none
+
 return: origin file text
