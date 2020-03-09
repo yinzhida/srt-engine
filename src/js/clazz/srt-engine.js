@@ -15,6 +15,7 @@ class SrtEngine {
     this.uidIndexGroup = null;
     this.modified = false;
     this.originText = null;
+    this.styles = {};
   }
 
   async load (url) {
@@ -59,7 +60,16 @@ class SrtEngine {
     this.clearIndex();
   }
 
+  setStyle (style) {
+    this.style = style;
+  }
+
+  getStyle () {
+    return this.style;
+  }
+
   stringify (styles, start, end) {
+    styles = Object.assign(styles, this.style);
     start = Number(start);
     end = Number(end);
     let cutRange = false;
