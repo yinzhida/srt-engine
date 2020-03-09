@@ -190,13 +190,13 @@ var getLogger = Object(__WEBPACK_IMPORTED_MODULE_2__single__["a" /* default */])
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = require("babel-runtime/core-js/object/assign");
+module.exports = require("babel-runtime/core-js/get-iterator");
 
 /***/ }),
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = require("babel-runtime/core-js/get-iterator");
+module.exports = require("babel-runtime/core-js/object/assign");
 
 /***/ }),
 /* 7 */
@@ -390,10 +390,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_get_iterator__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_get_iterator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_get_iterator__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_regenerator__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_babel_runtime_regenerator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_babel_runtime_regenerator__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_babel_runtime_helpers_asyncToGenerator__ = __webpack_require__(1);
@@ -434,6 +434,7 @@ var SrtEngine = function () {
     this.uidIndexGroup = null;
     this.modified = false;
     this.originText = null;
+    this.styles = {};
   }
 
   __WEBPACK_IMPORTED_MODULE_5_babel_runtime_helpers_createClass___default()(SrtEngine, [{
@@ -507,8 +508,19 @@ var SrtEngine = function () {
       this.clearIndex();
     }
   }, {
+    key: 'setStyle',
+    value: function setStyle(style) {
+      this.style = style;
+    }
+  }, {
+    key: 'getStyle',
+    value: function getStyle() {
+      return this.style;
+    }
+  }, {
     key: 'stringify',
     value: function stringify(styles, start, end) {
+      styles = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default()(styles, this.style);
       start = Number(start);
       end = Number(end);
       var cutRange = false;
@@ -591,7 +603,7 @@ var SrtEngine = function () {
         var _iteratorError = undefined;
 
         try {
-          for (var _iterator = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_get_iterator___default()(supportStyles), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          for (var _iterator = __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator___default()(supportStyles), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var style = _step.value;
 
             var styleValue = styles[style.name];
@@ -795,7 +807,7 @@ var SrtEngine = function () {
           var _iteratorError2 = undefined;
 
           try {
-            for (var _iterator2 = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_get_iterator___default()(this.timeIndexGroup[key]), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            for (var _iterator2 = __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator___default()(this.timeIndexGroup[key]), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
               var dialogue = _step2.value;
 
               if (!(dialogue.endTimeInMilliSeconds < start || dialogue.startTimeInMilliSeconds > end) && dialogue.deleted === false) {
@@ -835,7 +847,7 @@ var SrtEngine = function () {
     value: function addDialogue(dialogue, index) {
       this.modified = true;
       var uid = Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["a" /* default */])();
-      var data = __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default()(__WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(dialogue), {
+      var data = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default()(__WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(dialogue), {
         uid: uid
       });
 
@@ -1177,7 +1189,7 @@ module.exports = require("babel-runtime/core-js/promise");
 /* unused harmony export fetchText */
 /* unused harmony export fetchJSON */
 /* unused harmony export fetchArrayBuffer */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_object_assign__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_json_stringify__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_json_stringify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_json_stringify__);
@@ -1487,7 +1499,7 @@ module.exports = require("babel-runtime/core-js/json/stringify");
 /* unused harmony export setObjArrayAttributeValue */
 /* unused harmony export closeWebPage */
 /* unused harmony export generateRandom */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_babel_runtime_core_js_get_iterator__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__js_config_constants__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__time__ = __webpack_require__(7);
