@@ -434,7 +434,18 @@ var SrtEngine = function () {
     this.uidIndexGroup = null;
     this.modified = false;
     this.originText = null;
-    this.styles = {};
+    this.style = {
+      fontSize: 16,
+      fontColor: '#ffffff',
+      bold: true,
+      italic: true,
+      underground: true,
+      // align default 2, values:
+      // 7, 8, 9
+      // 4, 5, 6
+      // 1, 2, 3
+      align: 2
+    };
   }
 
   __WEBPACK_IMPORTED_MODULE_5_babel_runtime_helpers_createClass___default()(SrtEngine, [{
@@ -868,32 +879,68 @@ var SrtEngine = function () {
       return __WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(data);
     }
   }, {
-    key: 'updateDialogueByUid',
-    value: function updateDialogueByUid(uid, info) {
-      this.modified = true;
-      var data = this.findByUid(uid);
-      var originData = __WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(data);
+    key: 'updateDialog',
+    value: function updateDialog(dialogue, info) {
+      var originData = __WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(dialogue);
       var needUpdateTimeIndex = false;
 
       if (this.isUsableNumber(info.startTimeInMilliSeconds)) {
         needUpdateTimeIndex = true;
-        data.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
+        dialogue.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
       }
 
       if (this.isUsableNumber(info.endTimeInMilliSeconds)) {
         needUpdateTimeIndex = true;
-        data.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
+        dialogue.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
       }
 
       if (info.texts) {
-        data.texts = info.texts;
+        dialogue.texts = info.texts;
       }
 
       if (this.timeIndexGroup !== null && needUpdateTimeIndex) {
         this._removeFromTimeIndex(originData);
-        this._addToTimeIndex(data);
+        this._addToTimeIndex(dialogue);
       }
       return this;
+    }
+  }, {
+    key: 'updateDialogueByUid',
+    value: function updateDialogueByUid(uid, info) {
+      this.modified = true;
+      var data = this.findByUid(uid);
+      return this.updateDialog(data, info);
+    }
+  }, {
+    key: 'updateDialogByIndex',
+    value: function updateDialogByIndex(index, info) {
+      this.modified = true;
+      var content = this.content.filter(function (item) {
+        return !item.deleted;
+      });
+      var data = content[index];
+      return this.updateDialog(data, info);
+    }
+  }, {
+    key: 'updateDialogueByRange',
+    value: function updateDialogueByRange(startIndex, endIndex, getInfos) {
+      var _this = this;
+
+      var content = this.content.filter(function (item) {
+        return !item.deleted;
+      });
+      var targets = void 0;
+      if (startIndex !== undefined) {
+        if (endIndex !== undefined) {
+          targets = content.slice(startIndex, endIndex);
+        } else {
+          targets = content.slice(startIndex);
+        }
+      }
+      targets.forEach(function (item) {
+        var info = getInfos(item);
+        _this.updateDialog(item, info);
+      });
     }
   }, {
     key: 'removeDialogueByUid',

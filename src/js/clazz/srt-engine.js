@@ -15,7 +15,18 @@ class SrtEngine {
     this.uidIndexGroup = null;
     this.modified = false;
     this.originText = null;
-    this.styles = {};
+    this.style = {
+      fontSize: 16,
+      fontColor: '#ffffff',
+      bold: true,
+      italic: true,
+      underground: true,
+      // align default 2, values:
+      // 7, 8, 9
+      // 4, 5, 6
+      // 1, 2, 3
+      align: 2,
+    };
   }
 
   async load (url) {
@@ -354,31 +365,58 @@ class SrtEngine {
     return cloneDeep(data);
   }
 
-  updateDialogueByUid (uid, info) {
-    this.modified = true;
-    let data = this.findByUid(uid);
-    const originData = cloneDeep(data);
+  updateDialog (dialogue, info) {
+    const originData = cloneDeep(dialogue);
     let needUpdateTimeIndex = false;
 
     if (this.isUsableNumber(info.startTimeInMilliSeconds)) {
       needUpdateTimeIndex = true;
-      data.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
+      dialogue.startTimeInMilliSeconds = info.startTimeInMilliSeconds;
     }
 
     if (this.isUsableNumber(info.endTimeInMilliSeconds)) {
       needUpdateTimeIndex = true;
-      data.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
+      dialogue.endTimeInMilliSeconds = info.endTimeInMilliSeconds;
     }
 
     if (info.texts) {
-      data.texts = info.texts;
+      dialogue.texts = info.texts;
     }
 
     if (this.timeIndexGroup !== null && needUpdateTimeIndex) {
       this._removeFromTimeIndex(originData);
-      this._addToTimeIndex(data);
+      this._addToTimeIndex(dialogue);
     }
     return this;
+  }
+
+  updateDialogueByUid (uid, info) {
+    this.modified = true;
+    let data = this.findByUid(uid);
+    return this.updateDialog(data, info);
+  }
+
+  updateDialogByIndex (index, info) {
+    this.modified = true;
+    let content = this.content.filter(item => !item.deleted);
+    let data = content[index];
+    return this.updateDialog(data, info);
+  }
+
+  updateDialogueByRange (startIndex, endIndex, getInfos) {
+    let content = this.content.filter(item => !item.deleted);
+    let targets;
+    if (startIndex !== undefined) {
+      if (endIndex !== undefined) {
+        targets = content.slice(startIndex, endIndex);
+      } else {
+        targets = content.slice(startIndex);
+      }
+    }
+    targets.forEach((item) => {
+      let info = getInfos(item);
+      this.updateDialog(item, info);
+    });
   }
 
   removeDialogueByUid (uid) {
