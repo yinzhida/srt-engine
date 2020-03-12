@@ -1988,8 +1988,8 @@ var SrtEngine = function () {
       return __WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(data);
     }
   }, {
-    key: 'updateDialog',
-    value: function updateDialog(dialogue, info) {
+    key: '_updateDialog',
+    value: function _updateDialog(dialogue, info) {
       var originData = __WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(dialogue);
       var needUpdateTimeIndex = false;
 
@@ -2018,7 +2018,7 @@ var SrtEngine = function () {
     value: function updateDialogueByUid(uid, info) {
       this.modified = true;
       var data = this.findByUid(uid);
-      return this.updateDialog(data, info);
+      return this._updateDialog(data, info);
     }
   }, {
     key: 'updateDialogByIndex',
@@ -2028,7 +2028,7 @@ var SrtEngine = function () {
         return !item.deleted;
       });
       var data = content[index];
-      return this.updateDialog(data, info);
+      return this._updateDialog(data, info);
     }
   }, {
     key: 'updateDialogueByRange',
@@ -2048,8 +2048,9 @@ var SrtEngine = function () {
       }
       targets.forEach(function (item) {
         var info = getInfos(item);
-        _this.updateDialog(item, info);
+        _this._updateDialog(item, info);
       });
+      return this;
     }
   }, {
     key: 'removeDialogueByUid',

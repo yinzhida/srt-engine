@@ -365,7 +365,7 @@ class SrtEngine {
     return cloneDeep(data);
   }
 
-  updateDialog (dialogue, info) {
+  _updateDialog (dialogue, info) {
     const originData = cloneDeep(dialogue);
     let needUpdateTimeIndex = false;
 
@@ -393,14 +393,14 @@ class SrtEngine {
   updateDialogueByUid (uid, info) {
     this.modified = true;
     let data = this.findByUid(uid);
-    return this.updateDialog(data, info);
+    return this._updateDialog(data, info);
   }
 
   updateDialogByIndex (index, info) {
     this.modified = true;
     let content = this.content.filter(item => !item.deleted);
     let data = content[index];
-    return this.updateDialog(data, info);
+    return this._updateDialog(data, info);
   }
 
   updateDialogueByRange (startIndex, endIndex, getInfos) {
@@ -415,8 +415,9 @@ class SrtEngine {
     }
     targets.forEach((item) => {
       let info = getInfos(item);
-      this.updateDialog(item, info);
+      this._updateDialog(item, info);
     });
+    return this;
   }
 
   removeDialogueByUid (uid) {
