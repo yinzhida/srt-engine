@@ -86,8 +86,8 @@ class SrtEngine {
     return this.style;
   }
 
-  stringify (styles, start, end) {
-    styles = Object.assign(styles, this.style);
+  stringify (styles = {}, start, end) {
+    styles = Object.assign({}, this.style, styles);
     start = Number(start);
     end = Number(end);
     let cutRange = false;

@@ -1652,8 +1652,12 @@ var SrtEngine = function () {
     }
   }, {
     key: 'stringify',
-    value: function stringify(styles, start, end) {
-      styles = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default()(styles, this.style);
+    value: function stringify() {
+      var styles = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var start = arguments[1];
+      var end = arguments[2];
+
+      styles = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default()({}, this.style, styles);
       start = Number(start);
       end = Number(end);
       var cutRange = false;
