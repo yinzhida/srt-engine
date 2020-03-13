@@ -1320,6 +1320,8 @@ var formatNumber = function formatNumber(number, n) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return newGUID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return setGUID; });
 /**
  * @file guid.js
  * @module guid
@@ -1329,7 +1331,7 @@ var formatNumber = function formatNumber(number, n) {
  * Unique ID for an element or function
  * @type {Number}
  */
-var _guid = 1;
+var __guid = 1;
 
 /**
  * Get a unique auto-incrementing ID by number that has not been returned before.
@@ -1338,10 +1340,14 @@ var _guid = 1;
  *         A new unique ID.
  */
 var newGUID = function newGUID() {
-  return _guid++;
+  return __guid++;
 };
 
-/* harmony default export */ __webpack_exports__["a"] = (newGUID);
+var setGUID = function setGUID(uid) {
+  __guid = Math.max(__guid, uid);
+};
+
+
 
 /***/ }),
 /* 58 */
@@ -1609,8 +1615,15 @@ var SrtEngine = function () {
     key: 'transform',
     value: function transform(content) {
       this.clearSrtEngine();
+      var maxUid = 1;
+      this.content = content.forEach(function (item) {
+        if (typeof item.uid === 'number' && !isNaN(item.uid)) {
+          maxUid = Math.max(item.uid, maxUid);
+        }
+      });
+      Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["b" /* setGUID */])(maxUid + 1);
       this.content = content.map(function (item) {
-        item.uid = item.uid === undefined ? Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["a" /* default */])() : item.uid;
+        item.uid = item.uid === undefined ? Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["a" /* newGUID */])() : item.uid;
         return item;
       });
       this.originText = null;
@@ -1966,7 +1979,7 @@ var SrtEngine = function () {
     key: 'addDialogue',
     value: function addDialogue(dialogue, index) {
       this.modified = true;
-      var uid = Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["a" /* default */])();
+      var uid = Object(__WEBPACK_IMPORTED_MODULE_8__js_utils_guid__["a" /* newGUID */])();
       var data = __WEBPACK_IMPORTED_MODULE_1_babel_runtime_core_js_object_assign___default()(__WEBPACK_IMPORTED_MODULE_10_lodash_clonedeep___default()(dialogue), {
         uid: uid
       });
@@ -5555,7 +5568,7 @@ var _this = this;
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-11-07 10:37:07
+ * Last Modified: 2020-03-13 12:23:48
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
@@ -5607,7 +5620,7 @@ var getTextArrayFromText = function getTextArrayFromText(text) {
         }
 
         var data = {
-          uid: Object(__WEBPACK_IMPORTED_MODULE_5__guid__["a" /* default */])(),
+          uid: Object(__WEBPACK_IMPORTED_MODULE_5__guid__["a" /* newGUID */])(),
           id: lineArray[i].trim(), // id
           startTimeInMilliSeconds: getMilliSecondsFromString(timeArr[0]), // 根据字幕里的事件字符串，获取开始结束的以毫秒计数的时间点
           endTimeInMilliSeconds: getMilliSecondsFromString(timeArr[1]), // 根据字幕里的事件字符串，获取开始结束的以毫秒计数的时间点
