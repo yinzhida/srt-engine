@@ -2,7 +2,7 @@
  * Created Date: 2018-04-18 5:34:06
  * Author: yinzhida Email: zhaoxinxin@qiyi.com
  * -----
- * Last Modified: 2019-11-07 10:37:07
+ * Last Modified: 2020-03-13 12:23:48
  * Modified By: yinzhida yinzhida@qiyi.com
  * -----
  * Copyright (c) 2018 IQIYI
@@ -10,7 +10,7 @@
 
 import { fetchBlob } from '@/js/dao/dao';
 import DataCache from './data-cache';
-import newGUID from './guid';
+import { newGUID } from './guid';
 
 const getMilliSecondsFromString = (timeStr) => {
   // 时间格式转换

@@ -7,7 +7,7 @@
  * Unique ID for an element or function
  * @type {Number}
  */
-let _guid = 1;
+let __guid = 1;
 
 /**
  * Get a unique auto-incrementing ID by number that has not been returned before.
@@ -16,7 +16,14 @@ let _guid = 1;
  *         A new unique ID.
  */
 const newGUID = function newGUID () {
-  return _guid++;
+  return __guid++;
 };
 
-export default newGUID;
+const setGUID = function setGUID (uid) {
+  __guid = Math.max(__guid, uid);
+};
+
+export {
+  newGUID,
+  setGUID
+};

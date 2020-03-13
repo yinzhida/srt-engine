@@ -1,6 +1,6 @@
 import getLogger from '@/js/utils/logger';
 import { formatTime } from '@/js/utils/time';
-import newGUID from '@/js/utils/guid';
+import { newGUID, setGUID } from '@/js/utils/guid';
 import constants from '@/js/config/constants';
 import cloneDeep from 'lodash.clonedeep';
 import { getSubtitleTextArrayByUrl, getTextArrayFromText, getPureText } from '@/js/utils/srt';
@@ -53,6 +53,13 @@ class SrtEngine {
 
   transform (content) {
     this.clearSrtEngine();
+    let maxUid = 1;
+    this.content = content.forEach((item) => {
+      if (typeof item.uid === 'number' && !isNaN(item.uid)) {
+        maxUid = Math.max(item.uid, maxUid);
+      }
+    });
+    setGUID(maxUid + 1);
     this.content = content.map((item) => {
       item.uid = item.uid === undefined ? newGUID() : item.uid;
       return item;
